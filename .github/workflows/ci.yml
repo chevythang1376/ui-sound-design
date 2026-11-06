@@ -36,7 +36,14 @@ jobs:
   e2e:
     name: Browser tests (Chromium, WebKit, mobile)
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 25
+    # Playwright's official image: Chromium, WebKit and their system libraries preinstalled, so
+    # there is no slow apt install of ~100 packages (it hung the first run). The tag must match
+    # the @playwright/test version in package-lock.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
+    env:
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,17 +51,20 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Install Playwright browsers and their system dependencies
-        run: npx playwright install --with-deps chromium webkit
-      # Runners have no sound card. A PulseAudio null sink gives WebKit's GStreamer backend an
-      # output device, so realtime AudioContexts can reach "running" in the unlock tests.
+      # No sound card in CI. A PulseAudio null sink gives WebKit's GStreamer backend an output
+      # device, so realtime AudioContexts can reach "running" in the unlock tests. Best effort:
+      # if it fails, the tests still run and the unlock tests report the real outcome.
       - name: Virtual audio output (PulseAudio null sink)
+        timeout-minutes: 5
+        continue-on-error: true
         run: |
-          sudo apt-get install -y --no-install-recommends pulseaudio
+          apt-get update
+          apt-get install -y --no-install-recommends pulseaudio pulseaudio-utils
           pulseaudio --daemonize=yes --exit-idle-time=-1
           pactl load-module module-null-sink sink_name=ci_null
           pactl set-default-sink ci_null
       - name: Browser tests
+        timeout-minutes: 15
         run: npx playwright test --retries=1 --reporter=list,json
         env:
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results.json
