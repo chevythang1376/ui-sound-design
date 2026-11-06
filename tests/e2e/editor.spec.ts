@@ -1,15 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { instrument, skipWithoutWebAudio } from './helpers';
 
-declare global {
-  interface Window {
-    soundDesigner: {
-      store: import('../../src/editor/store').Store;
-      kit: import('../../src/engine/index').SoundKit;
-    };
-  }
-}
-
 const open = async (page: Page) => {
   await page.goto('/');
   await page.waitForFunction(() => !!window.soundDesigner);
@@ -137,7 +128,9 @@ test('corrupt saved state falls back to the default kit with a visible notice', 
     }
   });
   await open(page);
-  await expect(page.getByRole('status')).toContainText('could not be read');
+  await expect(page.getByRole('status', { name: 'Editor messages' })).toContainText(
+    'could not be read',
+  );
   expect(await page.evaluate(() => Object.keys(window.soundDesigner.store.kit.sounds).length)).toBe(
     9,
   );
@@ -161,7 +154,7 @@ test('saved kit with bad values is repaired, not discarded', async ({ page }) =>
     }
   });
   await open(page);
-  await expect(page.getByRole('status')).toContainText('1 fix');
+  await expect(page.getByRole('status', { name: 'Editor messages' })).toContainText('1 fix');
   expect(await page.evaluate(() => window.soundDesigner.store.kit.sounds.tap!.gain)).toBe(1);
   await expect(page.getByRole('heading', { name: 'tap', level: 2 })).toBeVisible();
 });

@@ -46,7 +46,12 @@ export function confirmDialog(opts: {
 
 /** A polite live region for status messages. */
 export function statusRegion() {
-  const el = h('div', { class: 'status', role: 'status', 'aria-live': 'polite' });
+  const el = h('div', {
+    class: 'status',
+    role: 'status',
+    'aria-live': 'polite',
+    'aria-label': 'Editor messages',
+  });
   let t = 0;
   return {
     el,

@@ -7,6 +7,7 @@ import { createKit } from '../engine/index';
 import { recipeMs } from '../engine/schema';
 import { defaultKit } from '../presets/default-kit';
 import { renderPreview, Scope } from './panels/scope';
+import { stagePanel } from './panels/stage';
 import { synthPanel } from './panels/synth-panel';
 import { loadSavedKit, safeStorage, Store } from './store';
 import { confirmDialog, statusRegion } from './ui/dialog';
@@ -67,16 +68,11 @@ const reset = async () => {
 const bar = topBar(store, kit, { playAll, stopAll, reset });
 const list = soundList(store, play);
 const synth = synthPanel(store, scope, () => play());
-const stage = h(
-  'aside',
-  { class: 'stage', 'aria-label': 'Component stage' },
-  h('h2', { class: 'col-title' }, 'Stage'),
-  h('p', { class: 'hint' }, 'Live components arrive in M4.'),
-);
+const stage = stagePanel(store, kit);
 
 document
   .querySelector('#app')!
-  .replaceChildren(bar.el, h('main', { class: 'main' }, list.el, synth.el, stage), status.el);
+  .replaceChildren(bar.el, h('main', { class: 'main' }, list.el, synth.el, stage.el), status.el);
 
 // Offline preview (waveform + peak), debounced.
 let previewTimer = 0;
@@ -98,6 +94,7 @@ store.subscribe((s, change) => {
   bar.update();
   list.update();
   synth.update();
+  stage.update();
   preview();
   if (change.audible && s.autoplay && change.source != 'load') {
     clearTimeout(autoplayTimer);

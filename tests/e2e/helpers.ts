@@ -6,8 +6,14 @@ declare global {
   interface Window {
     harness: Harness;
     kitPage: KitPage;
+    soundDesigner: {
+      store: import('../../src/editor/store').Store;
+      kit: import('../../src/engine/index').SoundKit;
+    };
     __ctxs: AudioContext[];
     __oscStarts: number;
+    /** Filter cutoff of every realtime play, in order (each preset's cutoff is unique). */
+    __cutoffs: number[];
   }
 }
 
@@ -20,6 +26,24 @@ export async function instrument(page: Page): Promise<void> {
     const w = window as unknown as Record<string, unknown> & Window;
     w.__ctxs = [];
     w.__oscStarts = 0;
+    w.__cutoffs = [];
+    if (typeof BaseAudioContext != 'undefined') {
+      const make = BaseAudioContext.prototype.createBiquadFilter;
+      BaseAudioContext.prototype.createBiquadFilter = function (this: BaseAudioContext) {
+        const f = make.call(this);
+        if (!(this instanceof OfflineAudioContext))
+          (f.frequency as unknown as { __cut: boolean }).__cut = true;
+        return f;
+      };
+      const desc = Object.getOwnPropertyDescriptor(AudioParam.prototype, 'value')!;
+      Object.defineProperty(AudioParam.prototype, 'value', {
+        ...desc,
+        set(this: AudioParam & { __cut?: boolean }, v: number) {
+          if (this.__cut) w.__cutoffs.push(v);
+          desc.set!.call(this, v);
+        },
+      });
+    }
     const Orig = (w.AudioContext || w.webkitAudioContext) as typeof AudioContext | undefined;
     if (Orig) {
       class Counted extends Orig {
@@ -58,4 +82,14 @@ export async function skipWithoutWebAudio(page: Page): Promise<void> {
     !has,
     'No Web Audio API in this browser build (Playwright WebKit on Windows). Runs on macOS/Linux.',
   );
+}
+
+/** Names of the sounds played so far, identified by their (unique) filter cutoffs. */
+export async function playedSounds(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const sounds = window.soundDesigner.store.kit.sounds;
+    return window.__cutoffs.map(
+      (c) => Object.entries(sounds).find(([, r]) => r.filter?.cutoff === c)?.[0] ?? `?${c}`,
+    );
+  });
 }
