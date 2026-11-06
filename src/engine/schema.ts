@@ -6,7 +6,7 @@
  * Lives in src/engine because it owns the data contract, but index.ts does not import it, so it
  * is not part of the exported runtime. Pure: no audio.
  */
-import { envMs, fullEnv } from './envelope';
+import { FLOOR, envMs, fullEnv } from './envelope';
 import { noteToMidi } from './notes';
 import {
   ENV_DEFAULTS,
@@ -318,4 +318,5 @@ export function validateKit(input: unknown): Validation {
 export const recipeMs = (r: Recipe): number =>
   envMs(fullEnv(r.env)) + Math.max(0, ...r.voices.map((v) => v.delayMs ?? VOICE_DEFAULTS.delayMs));
 
-export { envMs, fullEnv };
+/** Pure envelope helpers the editor may use (it must not import envelope.ts directly). */
+export { FLOOR, envMs, fullEnv };

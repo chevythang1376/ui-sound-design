@@ -1,0 +1,821 @@
+/*
+ * UI Sound Designer — a compact hardware synth crossed with a design-system tool.
+ * Dark neutral surface, one accent, monospaced readouts, generous hit targets.
+ * All text/background pairs meet WCAG AA. System fonts only.
+ */
+:root {
+  --bg: #0f1114;
+  --surface: #16191e;
+  --surface-2: #1c2026;
+  --surface-3: #252a32;
+  --line: #2e343e;
+  --line-strong: #444c58;
+  --text: #e8eaed;
+  --text-dim: #a7afbb;
+  --accent: #ffb547;
+  --accent-ink: #1d1404;
+  --accent-soft: rgb(255 181 71 / 14%);
+  --danger: #ff8585;
+  --ok: #6ee0a6;
+  --focus: #ffd18c;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 var(--sans);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 12.5px;
+  margin: 0 0 10px;
+}
+.hint.warn {
+  color: var(--accent);
+}
+
+/* ---------- App frame ---------- */
+
+.app {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 360px;
+  min-height: 0;
+}
+.main > * {
+  min-height: 0;
+  overflow: auto;
+}
+
+.col-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) {
+  background: var(--surface-3);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.btn.icon {
+  width: 36px;
+  padding: 0;
+  font-size: 18px;
+}
+.btn.quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+}
+.btn.quiet:hover {
+  color: var(--text);
+}
+.btn-accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+.btn-accent:hover:not(:disabled) {
+  background: #ffc46d;
+}
+.btn-danger {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.btn[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.btn-group {
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, var(--accent) 0 30%, transparent 31%),
+    conic-gradient(var(--accent) 0 75%, var(--line-strong) 0);
+}
+.kit-name {
+  min-width: 140px;
+  width: 200px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-weight: 600;
+}
+.kit-name:hover {
+  border-color: var(--line-strong);
+}
+.topbar-knobs {
+  display: flex;
+  gap: 4px;
+}
+.topbar sd-knob {
+  --knob: 34px;
+  grid-template-columns: auto auto;
+  grid-template-areas: 'dial label' 'dial value';
+  column-gap: 8px;
+  text-align: left;
+  min-width: 104px;
+}
+.mute-btn[aria-pressed='true'] {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgb(255 133 133 / 10%);
+}
+
+/* ---------- Sound list ---------- */
+
+.sounds {
+  padding: 16px 12px;
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+}
+.sound-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.sound {
+  display: flex;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+.sound.selected {
+  background: var(--accent-soft);
+  border-color: rgb(255 181 71 / 45%);
+}
+.sound-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.sound:not(.selected) .sound-row:hover {
+  background: var(--surface-2);
+}
+.sound.selected .sound-name {
+  color: var(--accent);
+  font-weight: 600;
+}
+.badge {
+  flex: none;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+}
+.badge.over {
+  color: #2a0a0a;
+  background: var(--danger);
+  font-weight: 700;
+}
+.sound-play {
+  width: 40px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.sound-play:hover {
+  color: var(--accent);
+  background: var(--surface-2);
+}
+
+/* ---------- Synth panel ---------- */
+
+.synth {
+  padding: 16px 20px 32px;
+}
+.synth-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.synth-title {
+  margin: 0;
+  font-size: 22px;
+}
+.synth-sub {
+  margin: 2px 0 0;
+  color: var(--text-dim);
+}
+.synth-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.duration {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+.duration.over {
+  color: #2a0a0a;
+  background: var(--danger);
+  font-weight: 700;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 14px;
+}
+.panel.wide {
+  grid-column: 1 / -1;
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px 14px;
+  min-width: 0;
+}
+.panel-title {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.voice-row,
+.knob-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.voice-row + .voice-row {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+.voice-head {
+  min-width: 84px;
+}
+.voice-name {
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.sweep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.env-canvas {
+  display: block;
+  width: 100%;
+  height: 120px;
+  margin-top: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Knob ---------- */
+
+sd-knob {
+  --knob: 48px;
+  display: inline-grid;
+  grid-template-areas: 'label' 'dial' 'value';
+  justify-items: center;
+  text-align: center;
+  min-width: 72px;
+  user-select: none;
+}
+.knob-label {
+  grid-area: label;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  align-self: end;
+}
+.knob-dial {
+  grid-area: dial;
+  width: var(--knob);
+  height: var(--knob);
+  border-radius: 50%;
+  cursor: ns-resize;
+  touch-action: none;
+}
+.knob-dial svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.knob-track {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.knob-arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.knob-cap {
+  fill: var(--surface-3);
+  stroke: var(--line-strong);
+}
+.knob-pointer {
+  stroke: var(--text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.knob-value {
+  grid-area: value;
+  font: 12px var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  cursor: text;
+  padding: 1px 4px;
+  border-radius: 4px;
+  min-width: 64px;
+}
+.knob-value:hover {
+  background: var(--surface-3);
+}
+.knob-input {
+  grid-area: value;
+  width: 72px;
+  font: 12px var(--mono);
+  text-align: center;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+sd-knob[disabled] {
+  opacity: 0.4;
+}
+sd-knob[disabled] .knob-dial,
+sd-knob[disabled] .knob-value {
+  cursor: default;
+}
+sd-knob.inactive {
+  opacity: 0.55;
+}
+sd-knob.dragging .knob-cap {
+  stroke: var(--accent);
+}
+
+/* ---------- Segmented ---------- */
+
+sd-segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+sd-segmented button {
+  min-height: 32px;
+  min-width: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+sd-segmented button:hover:not(:disabled) {
+  color: var(--text);
+}
+sd-segmented button[aria-checked='true'] {
+  background: var(--surface-3);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgb(255 181 71 / 40%);
+}
+sd-segmented[disabled] {
+  opacity: 0.4;
+}
+
+/* ---------- Switch ---------- */
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 32px;
+}
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.switch-track {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  flex: none;
+}
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: transform 0.12s ease;
+}
+.switch input:checked + .switch-track {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.switch input:checked + .switch-track::after {
+  transform: translateX(14px);
+  background: var(--accent-ink);
+}
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.switch input:disabled ~ * {
+  opacity: 0.45;
+}
+.switch-label {
+  color: var(--text);
+}
+
+/* ---------- Note field ---------- */
+
+sd-note {
+  position: relative;
+  display: inline-grid;
+  gap: 2px;
+}
+.note-row {
+  display: inline-flex;
+}
+.note-input {
+  width: 84px;
+  min-height: 34px;
+  padding: 0 8px;
+  font-family: var(--mono);
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-right: 0;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+.note-input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+.note-piano-btn {
+  width: 34px;
+  border: 1px solid var(--line-strong);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--surface-3);
+  cursor: pointer;
+}
+.note-piano-btn[aria-expanded='true'] {
+  color: var(--accent);
+}
+.note-hz {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+sd-note[disabled] {
+  opacity: 0.4;
+}
+.piano-pop {
+  position: absolute;
+  z-index: 20;
+  top: 40px;
+  left: 0;
+  padding: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 45%);
+}
+.piano-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.piano-nav button {
+  width: 32px;
+  height: 28px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface-3);
+  cursor: pointer;
+}
+.piano-keys {
+  display: flex;
+  height: 72px;
+}
+.key {
+  position: relative;
+  border: 1px solid #555;
+  cursor: pointer;
+  padding: 0;
+}
+.key.white {
+  width: 20px;
+  height: 72px;
+  background: #e9e6df;
+  border-radius: 0 0 3px 3px;
+}
+.key.black {
+  width: 14px;
+  height: 44px;
+  margin: 0 -7px;
+  z-index: 1;
+  background: #1a1a1a;
+  border-color: #000;
+  border-radius: 0 0 3px 3px;
+}
+.key[aria-pressed='true'] {
+  background: var(--accent);
+}
+.key:hover {
+  filter: brightness(0.9);
+}
+.key:focus-visible {
+  z-index: 2;
+}
+
+/* ---------- Scope / meter ---------- */
+
+.scope {
+  margin-top: 12px;
+}
+.meter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+.meter-label {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+.meter-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  width: 0;
+  background: var(--ok);
+}
+.meter-fill.hot {
+  background: var(--danger);
+}
+.meter-text {
+  font-size: 12px;
+  min-width: 84px;
+  text-align: right;
+}
+.scope-canvases {
+  position: relative;
+  margin: 10px 0 6px;
+  height: 90px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.scope-canvases canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Stage ---------- */
+
+.stage {
+  padding: 16px;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+}
+
+/* ---------- Dialog / status ---------- */
+
+.dialog {
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  color: var(--text);
+}
+.dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+.dialog-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.status {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%) translateY(8px);
+  max-width: min(640px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 40%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+  z-index: 50;
+}
+.status.show {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+.status:empty {
+  display: none;
+}
+
+/* ---------- Responsive: desktop first, usable down to tablet ---------- */
+
+@media (max-width: 1280px) {
+  .main {
+    grid-template-columns: 200px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .stage {
+    grid-column: 1 / -1;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    max-height: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .app {
+    height: auto;
+    display: block;
+  }
+  .main {
+    display: block;
+  }
+  .main > * {
+    overflow: visible;
+  }
+  .sounds {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sound-list {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(150px, 1fr);
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -34,7 +34,8 @@ export async function instrument(page: Page): Promise<void> {
     if (typeof OscillatorNode != 'undefined') {
       const start = OscillatorNode.prototype.start;
       OscillatorNode.prototype.start = function (this: OscillatorNode, ...a: [number?]) {
-        w.__oscStarts++;
+        // Count what plays, not offline renders (the editor's preview, kit.render()).
+        if (!(this.context instanceof OfflineAudioContext)) w.__oscStarts++;
         return start.apply(this, a);
       };
     }
