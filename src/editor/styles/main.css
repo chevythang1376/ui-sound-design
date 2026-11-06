@@ -29,6 +29,11 @@
   box-sizing: border-box;
 }
 
+/* Author display rules must never override the hidden attribute. */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -1049,4 +1054,105 @@ sd-note[disabled] {
 }
 .ui-disclosure-panel p {
   margin: 0;
+}
+
+/* ---------- Modals: export, share, kit JSON ---------- */
+
+.modal {
+  width: min(560px, calc(100vw - 32px));
+}
+.modal.wide {
+  width: min(880px, calc(100vw - 32px));
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.modal-head .dialog-title {
+  margin: 0;
+}
+.modal-body {
+  display: grid;
+  gap: 10px;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.tab {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab[aria-selected='true'] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.export-panel {
+  display: grid;
+  gap: 10px;
+}
+.usage {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.usage code {
+  font-family: var(--mono);
+  color: var(--text);
+  word-break: break-word;
+}
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.export-actions .spacer {
+  flex: 1;
+}
+.size {
+  margin: 0;
+  color: var(--text-dim);
+}
+.code {
+  width: 100%;
+  min-height: 220px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.share-url {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+}
+.issues:empty {
+  display: none;
+}
+.issue {
+  margin: 0;
+  font-size: 13px;
+}
+.issue.error {
+  color: var(--danger);
 }

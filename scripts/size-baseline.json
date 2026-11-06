@@ -1,0 +1,29 @@
+{
+  "runtime": {
+    "esmMin": 4944,
+    "esmGzip": 2578,
+    "iifeMin": 4941,
+    "iifeGzip": 2569
+  },
+  "kit": {
+    "json": 1376,
+    "esmMin": 6393,
+    "iifeMin": 6694,
+    "esmGzip": 3017
+  },
+  "parts": {
+    "src/engine/bind.ts": 360,
+    "src/engine/util.ts": 55,
+    "src/engine/context.ts": 582,
+    "src/engine/limiter.ts": 249,
+    "src/engine/noise.ts": 257,
+    "src/engine/prefs.ts": 285,
+    "src/engine/types.ts": 261,
+    "src/engine/envelope.ts": 295,
+    "src/engine/theme.ts": 108,
+    "src/engine/notes.ts": 223,
+    "src/engine/voice.ts": 312,
+    "src/engine/render.ts": 768,
+    "src/engine/index.ts": 1165
+  }
+}

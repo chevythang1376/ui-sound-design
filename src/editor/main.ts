@@ -4,11 +4,14 @@
  */
 import './styles/main.css';
 import { createKit } from '../engine/index';
-import { recipeMs } from '../engine/schema';
+import { recipeMs, validateKit } from '../engine/schema';
+import type { Kit } from '../engine/types';
 import { defaultKit } from '../presets/default-kit';
+import { openExportModal, openJsonDialog, openShareDialog } from './panels/export-modal';
 import { renderPreview, Scope } from './panels/scope';
 import { stagePanel } from './panels/stage';
 import { synthPanel } from './panels/synth-panel';
+import { decodeKit, readHash } from './share';
 import { loadSavedKit, safeStorage, Store } from './store';
 import { confirmDialog, statusRegion } from './ui/dialog';
 import { h } from './ui/dom';
@@ -65,7 +68,42 @@ const reset = async () => {
   status.say('Kit reset to the defaults. Undo brings yours back.');
 };
 
-const bar = topBar(store, kit, { playAll, stopAll, reset });
+const loadKit = (k: Kit, notes: string[] = [], what = 'Kit') => {
+  store.load(k);
+  status.say(
+    notes.length
+      ? `${what} loaded with ${notes.length} fix${notes.length == 1 ? '' : 'es'}: ${notes[0]}`
+      : `${what} loaded. Undo brings your previous kit back.`,
+    8000,
+  );
+};
+
+const extra = [
+  h(
+    'button',
+    { type: 'button', class: 'btn', onclick: () => openShareDialog(store.kit, status.say) },
+    'Share link',
+  ),
+  h(
+    'button',
+    {
+      type: 'button',
+      class: 'btn',
+      onclick: () => openJsonDialog(store.kit, (k, n) => loadKit(k, n, 'Kit JSON'), status.say),
+    },
+    'Kit JSON',
+  ),
+  h(
+    'button',
+    {
+      type: 'button',
+      class: 'btn btn-accent',
+      onclick: () => openExportModal(store.kit, status.say),
+    },
+    'Export',
+  ),
+];
+const bar = topBar(store, kit, { playAll, stopAll, reset }, extra);
 const list = soundList(store, play);
 const synth = synthPanel(store, scope, () => play());
 const stage = stagePanel(store, kit);
@@ -109,8 +147,8 @@ const typing = (t: EventTarget | null) =>
   (t.matches('input, textarea, select, [contenteditable=""], [contenteditable="true"]') ||
     t.isContentEditable);
 document.addEventListener('keydown', (e) => {
-  if (e.defaultPrevented || typing(e.target)) return;
   const t = e.target as HTMLElement;
+  if (e.defaultPrevented || typing(t) || t.closest?.('dialog')) return;
   const mod = e.ctrlKey || e.metaKey;
   if (
     e.key == ' ' &&
@@ -133,6 +171,33 @@ addEventListener('pagehide', () => store.saveNow());
 document.addEventListener('visibilitychange', () => document.hidden && store.saveNow());
 
 if (loaded.notice) status.say(loaded.notice, 10000);
+
+/**
+ * Shared links (#k=…): decode, validate, and ask before replacing local work.
+ */
+async function openSharedLink() {
+  const encoded = readHash(location.hash);
+  if (!encoded) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  try {
+    const v = validateKit(await decodeKit(encoded));
+    if (!v.ok || !v.kit || !Object.keys(v.kit.sounds).length)
+      throw new Error(v.errors[0] ?? 'The shared kit has no sounds.');
+    if (JSON.stringify(v.kit) === JSON.stringify(store.kit)) return;
+    const notes = [...v.errors, ...v.warnings];
+    const ok = await confirmDialog({
+      title: `Load shared kit "${v.kit.name}"?`,
+      body: `It replaces the kit you are editing ("${store.kit.name}"). Undo brings yours back.`,
+      ok: 'Load shared kit',
+      cancel: 'Keep mine',
+    });
+    if (ok) loadKit(v.kit, notes, 'Shared kit');
+  } catch (e) {
+    status.say(`Could not open the share link: ${(e as Error).message}`, 10000);
+  }
+}
+void openSharedLink();
+addEventListener('hashchange', () => void openSharedLink());
 
 /** Debug / test handle. */
 (window as unknown as { soundDesigner: unknown }).soundDesigner = { store, kit };

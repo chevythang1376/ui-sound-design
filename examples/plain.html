@@ -2,10 +2,67 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="data:," />
-    <title>Example (M5)</title>
+    <title>Plain page with a pasted sound kit</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        max-width: 42rem;
+        margin: 3rem auto;
+        padding: 0 1rem;
+        color: #1d2127;
+        background: #fafaf8;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+      button {
+        font: inherit;
+        min-height: 40px;
+        padding: 0 1rem;
+        border-radius: 8px;
+        border: 1px solid #8a919d;
+        background: #fff;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 2px solid #3b5bdb;
+        outline-offset: 2px;
+      }
+      code {
+        background: #eceae4;
+        padding: 0 0.25em;
+        border-radius: 4px;
+      }
+    </style>
   </head>
   <body>
-    <p>Filled in at M5.</p>
+    <h1>Plain HTML page</h1>
+    <p>
+      In UI Sound Designer, open <strong>Export → Script tag</strong>, copy the code, and paste it
+      into the <code>&lt;script&gt;</code> element at the bottom of this file. Then open this file
+      in a browser. No server and no other files are needed.
+    </p>
+    <div class="row">
+      <button type="button" data-sound="click">Click</button>
+      <button type="button" data-sound="toggleOn">Toggle on</button>
+      <button type="button" data-sound="toggleOff">Toggle off</button>
+      <button type="button" data-sound="success">Success</button>
+      <button type="button" data-sound="error">Error</button>
+      <button type="button" data-sound="notification">Notification</button>
+      <button type="button" data-sound="open">Open</button>
+      <button type="button" data-sound="close">Close</button>
+    </div>
+    <p><button type="button" data-sound-mute>Mute sounds</button></p>
+
+    <script>
+      /* PASTE the "Script tag" export (sound-kit.iife.js) here. */
+    </script>
   </body>
 </html>

@@ -1,11 +1,13 @@
 import { test, type Page } from '@playwright/test';
 import type { Harness } from '../pages/harness';
+import type { ExportHarness } from '../pages/export';
 import type { KitPage } from '../pages/kit';
 
 declare global {
   interface Window {
     harness: Harness;
     kitPage: KitPage;
+    exportHarness: ExportHarness;
     soundDesigner: {
       store: import('../../src/editor/store').Store;
       kit: import('../../src/engine/index').SoundKit;

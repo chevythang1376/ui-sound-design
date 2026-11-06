@@ -2,10 +2,198 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="data:," />
-    <title>Example (M5)</title>
+    <title>Northwind Outfitters — CMS page (simulated)</title>
+    <!--
+      This page simulates a page rendered by a SmartEdit-style CMS. Content authors cannot add
+      script files; they can only paste HTML into a component. The sound kit's "CMS block"
+      export is made for exactly that slot (see the component marked "Paste here" below).
+    -->
+    <style>
+      :root {
+        --ink: #1b1f24;
+        --dim: #59606b;
+        --line: #d8dbe0;
+        --brand: #0f6e5a;
+        --bg: #f7f6f2;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          16px/1.55 system-ui,
+          sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+      }
+      header,
+      main,
+      footer {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+      nav a {
+        color: var(--ink);
+        margin-left: 1rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        gap: 1rem;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 1rem;
+      }
+      .btn {
+        font: inherit;
+        font-weight: 600;
+        min-height: 44px;
+        padding: 0 1.1rem;
+        border-radius: 8px;
+        border: 1px solid var(--brand);
+        background: var(--brand);
+        color: #fff;
+        cursor: pointer;
+      }
+      .btn.ghost {
+        background: #fff;
+        color: var(--brand);
+      }
+      .btn:focus-visible,
+      input:focus-visible {
+        outline: 2px solid var(--brand);
+        outline-offset: 2px;
+      }
+      input {
+        font: inherit;
+        min-height: 44px;
+        padding: 0 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #8a919d;
+        width: 100%;
+      }
+      .cms-component {
+        margin: 1.5rem 0;
+        padding: 0.75rem;
+        border: 2px dashed #b9bec7;
+        border-radius: 10px;
+        background: #fff;
+      }
+      .cms-component::before {
+        content: 'CMS component · Paragraph (HTML) · "Sound kit"';
+        display: block;
+        font-size: 0.75rem;
+        color: var(--dim);
+        margin-bottom: 0.5rem;
+      }
+      #faq-panel[hidden] {
+        display: none;
+      }
+      .note {
+        color: var(--dim);
+      }
+    </style>
   </head>
   <body>
-    <p>Filled in at M5.</p>
+    <header>
+      <span class="brand">NORTHWIND OUTFITTERS</span>
+      <nav aria-label="Main"><a href="#shop">Shop</a><a href="#faq">Help</a></nav>
+    </header>
+
+    <main>
+      <h1>Trail Shell Jacket</h1>
+      <p class="note">
+        Buttons on this page were authored in the CMS with <code>data-sound</code> attributes. Sound
+        starts working once the kit block below is pasted.
+      </p>
+
+      <!-- CMS slot: the content author pastes the "CMS block" export into this component. -->
+      <div
+        class="cms-component"
+        data-smartedit-component-type="CMSParagraphComponent"
+        data-smartedit-component-id="soundKitBlock"
+      >
+        <!-- PASTE CMS BLOCK HERE -->
+      </div>
+
+      <div class="grid" id="shop">
+        <section class="card" aria-labelledby="buy-title">
+          <h2 id="buy-title">€149</h2>
+          <p>Waterproof, breathable, packs into its own pocket.</p>
+          <button type="button" class="btn" data-sound="click" id="add">Add to cart</button>
+          <button type="button" class="btn ghost" data-sound="click">Save for later</button>
+          <p id="cart-status" role="status"></p>
+        </section>
+
+        <section class="card" aria-labelledby="news-title">
+          <h2 id="news-title">Newsletter</h2>
+          <form id="news" data-sound="success" novalidate>
+            <label for="news-email">Email</label>
+            <input id="news-email" type="email" autocomplete="email" />
+            <p><button type="submit" class="btn">Sign up</button></p>
+            <p id="news-status" role="status"></p>
+          </form>
+        </section>
+
+        <section class="card" aria-labelledby="faq-title" id="faq">
+          <h2 id="faq-title">Help</h2>
+          <button
+            type="button"
+            class="btn ghost"
+            aria-expanded="false"
+            aria-controls="faq-panel"
+            data-sound="open"
+            id="faq-btn"
+          >
+            Delivery & returns
+          </button>
+          <div id="faq-panel" hidden>
+            <p>Free delivery over €50. 30-day returns.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="note">A simulated CMS page for testing the UI Sound Designer CMS block.</footer>
+
+    <!-- Page behaviour the CMS ships (independent of the sound kit). -->
+    <script>
+      document.getElementById('add').addEventListener('click', function () {
+        document.getElementById('cart-status').textContent = 'Added to cart.';
+      });
+      document.getElementById('news').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = document.getElementById('news-email');
+        var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim());
+        this.setAttribute('data-sound', ok ? 'success' : 'error');
+        document.getElementById('news-status').textContent = ok
+          ? 'Thanks, you are signed up.'
+          : 'Please enter a valid email address.';
+      });
+      document.getElementById('faq-btn').addEventListener('click', function () {
+        var open = this.getAttribute('aria-expanded') !== 'true';
+        this.setAttribute('aria-expanded', String(open));
+        this.setAttribute('data-sound', open ? 'open' : 'close');
+        document.getElementById('faq-panel').hidden = !open;
+      });
+    </script>
   </body>
 </html>

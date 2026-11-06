@@ -30,8 +30,10 @@ engine for export. The exporter inlines the esbuild-minified build of `src/engin
 8. **No audio files anywhere.** No samples, no base64 audio, no fetches. All synthesized.
 9. **Quiet defaults.** Master volume defaults to ~0.5; every preset peaks well below clipping.
 10. **Size budget**, enforced by `scripts/check-size.mjs` (`npm run size`) and a test:
-    engine runtime ≤ 4 KB min / ≤ 2 KB gzip; engine + 8-sound default kit ≤ 6 KB min.
-    If a budget fails, report which part grew. Never raise a budget without asking.
+    engine runtime ≤ 5 KB min / ≤ 2.75 KB gzip; engine + 8-sound default kit ≤ 7 KB min.
+    (Raised from 4 / 2 / 6 KB with the user's agreement on 2026-11-06, after measuring the
+    full v1 engine.) If a budget fails, report which part grew (`npm run size` prints deltas
+    against `scripts/size-baseline.json`). Never raise a budget without asking.
 11. **UI sounds are short.** Most finish well under 500 ms; the editor warns above 500 ms.
 
 ## Boundaries (enforced by ESLint `no-restricted-imports`)
