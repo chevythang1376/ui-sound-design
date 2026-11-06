@@ -270,6 +270,15 @@ so on Windows the WebKit tests that need audio output are skipped, with that rea
 else runs in WebKit, including the no-Web-Audio fallbacks. Run the suite on macOS or Linux for
 full Safari audio coverage, and check on a real iPhone before shipping.
 
+**CI** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs on Linux, where WebKit has
+Web Audio, and has two jobs:
+
+- **Checks:** typecheck, lint, unit tests, size budget and build.
+- **Browser tests:** all Playwright projects, with a PulseAudio null sink as the audio
+  output. The job then runs `scripts/check-e2e-skips.mjs` on the JSON report, which **fails**
+  if any test was skipped for missing Web Audio, so WebKit audio coverage cannot quietly
+  disappear. On failure, the test artifacts are uploaded.
+
 ---
 
 ## Project structure

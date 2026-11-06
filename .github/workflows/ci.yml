@@ -1,0 +1,71 @@
+# CI on Linux, where Playwright's WebKit has the Web Audio API (its Windows build does not).
+# The e2e job fails if any test was skipped for lack of Web Audio, so WebKit audio coverage
+# cannot silently disappear.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Typecheck, lint, unit tests, size, build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run size
+      - run: npm run build
+
+  e2e:
+    name: Browser tests (Chromium, WebKit, mobile)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers and their system dependencies
+        run: npx playwright install --with-deps chromium webkit
+      # Runners have no sound card. A PulseAudio null sink gives WebKit's GStreamer backend an
+      # output device, so realtime AudioContexts can reach "running" in the unlock tests.
+      - name: Virtual audio output (PulseAudio null sink)
+        run: |
+          sudo apt-get install -y --no-install-recommends pulseaudio
+          pulseaudio --daemonize=yes --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=ci_null
+          pactl set-default-sink ci_null
+      - name: Browser tests
+        run: npx playwright test --retries=1 --reporter=list,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results.json
+      - name: Require Web Audio coverage (no tests skipped for missing Web Audio)
+        run: node scripts/check-e2e-skips.mjs e2e-results.json
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            e2e-results.json
+          retention-days: 7
