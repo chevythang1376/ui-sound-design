@@ -13,6 +13,12 @@ import { h, id } from '../ui/dom';
 
 const kb = (n: number) => `${(n / 1024).toFixed(2)} KB`;
 
+/** "Use `x` here" -> ["Use ", <code>x</code>, " here"]. */
+const inlineCode = (s: string): (string | HTMLElement)[] =>
+  s
+    .split(/(`[^`]+`)/)
+    .map((part) => (part.startsWith('`') ? h('code', null, part.slice(1, -1)) : part));
+
 /** A modal <dialog> with a title, body and footer; resolves when closed. */
 export function modal(title: string, body: Node[], footer: Node[] = [], wide = false) {
   const titleId = id('modal-title');
@@ -107,7 +113,7 @@ export function openExportModal(kit: Kit, say: (msg: string) => void): Promise<v
         hidden: i > 0,
         class: 'export-panel',
       },
-      h('ul', { class: 'usage' }, ...f.usage.map((u) => h('li', null, h('code', null, u)))),
+      h('ul', { class: 'usage' }, ...f.usage.map((u) => h('li', null, ...inlineCode(u)))),
       h(
         'div',
         { class: 'export-actions' },

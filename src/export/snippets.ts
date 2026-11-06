@@ -13,7 +13,7 @@ export interface ExportFile {
   filename: string;
   mime: string;
   code: string;
-  /** Short usage notes for the modal. */
+  /** Short usage notes for the modal; `backticks` mark code. */
   usage: string[];
 }
 
@@ -30,10 +30,10 @@ export function esModule(runtime: Runtime, kit: Kit): ExportFile {
     mime: 'text/javascript',
     code: buildEsm(runtime, kit),
     usage: [
-      "import kit from './sound-kit.js';",
-      'kit.bind();            // wires every [data-sound] element',
-      "kit.play('success');   // or play by name",
-      'kit.mountMuteToggle(document.querySelector("#mute"));',
+      "`import kit from './sound-kit.js';`",
+      "`kit.bind();` wires every `[data-sound]` element; `kit.play('success')` plays by name.",
+      "Add a mute control: `kit.mountMuteToggle(document.querySelector('#mute'))`.",
+      'Also exports `createKit(json, options)` for extra kits.',
     ],
   };
 }
@@ -46,9 +46,9 @@ export function scriptTag(runtime: Runtime, kit: Kit): ExportFile {
     mime: 'text/javascript',
     code: buildIife(runtime, kit),
     usage: [
-      '<script src="sound-kit.iife.js"></script>  (or paste the code inside a <script> tag)',
-      'Exposes window.SoundKit and auto-binds [data-sound] on DOMContentLoaded.',
-      'Any <button data-sound-mute> becomes a mute toggle.',
+      'Load it with `<script src="sound-kit.iife.js"></script>`, or paste the code inside a `<script>` tag.',
+      'Exposes `window.SoundKit` and auto-binds `[data-sound]` on DOMContentLoaded.',
+      'Any `<button data-sound-mute>` becomes a mute toggle.',
     ],
   };
 }
@@ -91,7 +91,7 @@ ${buildIife(runtime, kit).trim()}
     code,
     usage: [
       'Paste the whole block into one HTML component (SmartEdit, AEM, WordPress, Webflow embed…).',
-      'Then add data-sound="click" (etc.) to buttons anywhere on the page.',
+      'Then add `data-sound="click"` (etc.) to buttons anywhere on the page.',
       'Safe to paste twice; makes no network requests; does nothing if Web Audio is missing.',
     ],
   };
@@ -135,7 +135,9 @@ ${indent(buildIife(runtime, kit).trim(), 6)}
     filename: 'sound-kit-example.html',
     mime: 'text/html',
     code,
-    usage: ['A complete page showing data-sound usage. Open it in any browser, no server needed.'],
+    usage: [
+      'A complete page showing `data-sound` usage. Open it in any browser, no server needed.',
+    ],
   };
 }
 

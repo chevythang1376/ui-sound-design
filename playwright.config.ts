@@ -15,12 +15,20 @@ export default defineConfig({
     timeout: 60_000,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /mobile\.spec\.ts/ },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: /mobile\.spec\.ts/ },
     // The iOS Safari unlock path: touch input (touchend) on a mobile WebKit profile.
-    { name: 'mobile-safari', use: { ...devices['iPhone 13'] }, testMatch: /unlock\.spec\.ts/ },
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 13'] },
+      testMatch: /(unlock|mobile)\.spec\.ts/,
+    },
     // Same touch path in a browser that has Web Audio everywhere: pointerdown (touch) creates
     // the context without activation, touchend resumes it.
-    { name: 'mobile-chrome', use: { ...devices['Pixel 7'] }, testMatch: /unlock\.spec\.ts/ },
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 7'] },
+      testMatch: /(unlock|mobile)\.spec\.ts/,
+    },
   ],
 });

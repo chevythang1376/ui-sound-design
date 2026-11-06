@@ -108,9 +108,26 @@ const list = soundList(store, play);
 const synth = synthPanel(store, scope, () => play());
 const stage = stagePanel(store, kit);
 
+const w = window as unknown as Record<string, unknown>;
+const noAudio = !w.AudioContext && !w.webkitAudioContext;
+synth.el.id = 'synth';
+synth.el.tabIndex = -1;
+
+const banner = h(
+  'p',
+  { class: 'banner', role: 'note', hidden: !noAudio },
+  'This browser has no Web Audio API, so sounds cannot play here. Editing, sharing and export still work; the exported kit stays silent on browsers like this one.',
+);
+
 document
   .querySelector('#app')!
-  .replaceChildren(bar.el, h('main', { class: 'main' }, list.el, synth.el, stage.el), status.el);
+  .replaceChildren(
+    h('a', { class: 'skip-link', href: '#synth' }, 'Skip to the synth panel'),
+    bar.el,
+    banner,
+    h('main', { class: 'main' }, list.el, synth.el, stage.el),
+    status.el,
+  );
 
 // Offline preview (waveform + peak), debounced.
 let previewTimer = 0;
@@ -170,7 +187,12 @@ document.addEventListener('keydown', (e) => {
 addEventListener('pagehide', () => store.saveNow());
 document.addEventListener('visibilitychange', () => document.hidden && store.saveNow());
 
-if (loaded.notice) status.say(loaded.notice, 10000);
+if (!storage.persistent)
+  status.say(
+    'This browser blocks local storage, so your kit will not be saved when you close the tab. Use Kit JSON or Share link to keep it.',
+    15000,
+  );
+else if (loaded.notice) status.say(loaded.notice, 10000);
 
 /**
  * Shared links (#k=…): decode, validate, and ask before replacing local work.

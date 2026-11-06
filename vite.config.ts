@@ -16,5 +16,7 @@ export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
+    // Real CSS for the contrast test (Vitest stubs CSS to empty strings by default).
+    css: { include: [/styles\/main\.css/] },
   },
 });

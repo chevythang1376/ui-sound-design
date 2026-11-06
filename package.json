@@ -20,7 +20,8 @@
     "pretest:e2e": "npm run runtime",
     "test:e2e": "playwright test",
     "presize": "npm run runtime",
-    "size": "node scripts/check-size.mjs"
+    "size": "node scripts/check-size.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

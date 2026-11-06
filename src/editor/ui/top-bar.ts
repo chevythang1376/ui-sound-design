@@ -107,7 +107,7 @@ export function topBar(store: Store, kit: SoundKit, actions: TopBarActions, extr
       'div',
       { class: 'brand' },
       h('span', { class: 'logo', 'aria-hidden': 'true' }),
-      h('span', { class: 'brand-name' }, 'UI Sound Designer'),
+      h('h1', { class: 'brand-name' }, 'UI Sound Designer'),
     ),
     name,
     h('div', { class: 'topbar-knobs' }, pitch, volume),

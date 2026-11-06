@@ -82,10 +82,13 @@ textarea {
 /* ---------- App frame ---------- */
 
 .app {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   height: 100dvh;
+}
+.app > .main {
+  flex: 1;
 }
 
 .main {
@@ -183,6 +186,35 @@ textarea {
   gap: 8px;
   font-weight: 700;
   margin-right: 4px;
+}
+.brand-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+.skip-link:focus {
+  top: 8px;
+}
+.synth:focus {
+  outline: none;
+}
+.banner {
+  margin: 0;
+  padding: 8px 16px;
+  background: rgb(255 181 71 / 12%);
+  border-bottom: 1px solid rgb(255 181 71 / 45%);
+  color: var(--text);
 }
 .logo {
   width: 18px;

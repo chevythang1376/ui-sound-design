@@ -34,16 +34,25 @@ export interface StorageLike {
   removeItem(k: string): void;
 }
 
-/** localStorage, or an in-memory stand-in when storage is blocked (privacy modes). */
-export function safeStorage(): StorageLike {
+/**
+ * localStorage, or an in-memory stand-in when storage is blocked (privacy modes, full quota).
+ * `persistent` says which, so the editor can warn that work will not survive a reload.
+ */
+export function safeStorage(): StorageLike & { persistent: boolean } {
   try {
     const s = window.localStorage;
     s.setItem('usd:probe', '1');
     s.removeItem('usd:probe');
-    return s;
+    return {
+      persistent: true,
+      getItem: (k) => s.getItem(k),
+      setItem: (k, v) => s.setItem(k, v),
+      removeItem: (k) => s.removeItem(k),
+    };
   } catch {
     const m = new Map<string, string>();
     return {
+      persistent: false,
       getItem: (k) => m.get(k) ?? null,
       setItem: (k, v) => void m.set(k, v),
       removeItem: (k) => void m.delete(k),

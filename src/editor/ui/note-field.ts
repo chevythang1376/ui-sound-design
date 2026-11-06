@@ -109,6 +109,7 @@ export class SdNote extends HTMLElement {
     });
     this.input.addEventListener('blur', () => this.paint());
     this.toggle.addEventListener('click', () => this.open(!!this.pop.hidden));
+    this.keys.addEventListener('keydown', (e) => this.keyNav(e));
     this.pop.addEventListener('keydown', (e) => {
       if (e.key == 'Escape') {
         e.stopPropagation();
@@ -192,6 +193,26 @@ export class SdNote extends HTMLElement {
       }),
     );
     this.markKeys();
+  }
+
+  /** Left/Right (and Home/End) move focus between keys. */
+  private keyNav(e: KeyboardEvent) {
+    const keys = [...this.keys.children] as HTMLElement[];
+    const i = keys.indexOf(document.activeElement as HTMLElement);
+    if (i < 0) return;
+    const to =
+      e.key == 'ArrowRight'
+        ? i + 1
+        : e.key == 'ArrowLeft'
+          ? i - 1
+          : e.key == 'Home'
+            ? 0
+            : e.key == 'End'
+              ? keys.length - 1
+              : -2;
+    if (to == -2) return;
+    e.preventDefault();
+    keys[Math.max(0, Math.min(keys.length - 1, to))]!.focus();
   }
 
   /** Update which key shows as the current note. */

@@ -494,6 +494,34 @@ export function synthPanel(store: Store, scope: Scope, play: () => void): SynthP
     durationEl.title =
       ms > LONG_SOUND_MS ? 'UI sounds should finish well under half a second.' : 'Total length';
     drawEnvelope(envCanvas, r());
+    const e = { a: 2, d: 120, s: 0, h: 0, r: 100, ...r().env };
+    envCanvas.setAttribute(
+      'aria-label',
+      `Envelope: attack ${Math.max(1, e.a)} ms, decay ${e.d} ms, sustain ${e.s}` +
+        (e.s > 0 ? `, hold ${e.h} ms, release ${e.r} ms` : '') +
+        `; total ${Math.round(ms)} ms`,
+    );
+  };
+
+  /** A stable identity for a focusable control: its role and accessible name. */
+  const focusKey = (n: Element | null): string | null => {
+    if (!(n instanceof HTMLElement) || !el.contains(n)) return null;
+    const name =
+      n.getAttribute('aria-label') ??
+      n.closest('label')?.textContent?.trim() ??
+      n.textContent?.trim();
+    return `${n.getAttribute('role') ?? n.tagName}|${name}`;
+  };
+
+  /** Rebuild, keeping keyboard focus on the same control (e.g. after toggling Voice 2). */
+  const rebuild = () => {
+    const key = focusKey(document.activeElement);
+    build();
+    if (!key) return;
+    const same = [...el.querySelectorAll<HTMLElement>('button, input, [role="slider"]')].find(
+      (c) => focusKey(c) == key,
+    );
+    (same ?? el).focus();
   };
 
   build();
@@ -502,7 +530,7 @@ export function synthPanel(store: Store, scope: Scope, play: () => void): SynthP
   return {
     el,
     update() {
-      if (shapeOf() != shape) build();
+      if (shapeOf() != shape) rebuild();
       else sync();
     },
     durationText,
