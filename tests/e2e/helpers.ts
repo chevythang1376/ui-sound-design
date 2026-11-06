@@ -1,9 +1,11 @@
 import { test, type Page } from '@playwright/test';
 import type { Harness } from '../pages/harness';
+import type { KitPage } from '../pages/kit';
 
 declare global {
   interface Window {
     harness: Harness;
+    kitPage: KitPage;
     __ctxs: AudioContext[];
     __oscStarts: number;
   }

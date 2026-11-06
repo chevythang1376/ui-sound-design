@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Kit test page</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        background: #111317;
+        color: #e7e9ee;
+        padding: 2rem;
+        max-width: 48rem;
+      }
+      #sounds {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+      button {
+        font: inherit;
+        min-height: 44px;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #3a404b;
+        background: #1f232a;
+        color: #e7e9ee;
+        cursor: pointer;
+      }
+      button[aria-pressed='true'] {
+        border-color: #ffb547;
+        color: #ffb547;
+      }
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid #ffb547;
+        outline-offset: 2px;
+      }
+      label {
+        display: inline-flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-right: 1.5rem;
+      }
+      output {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        color: #9aa3b2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Kit test page (M2)</h1>
+    <p>
+      Every preset of the default kit on a <code>data-sound</code> button, wired by
+      <code>kit.bind()</code>. The mute button is <code>kit.mountMuteToggle()</code>; reload to see
+      the choice persist.
+    </p>
+    <p><button id="mute" type="button">Mute sounds</button></p>
+    <div id="sounds"></div>
+    <p>
+      <label>Pitch <input id="pitch" type="range" min="-12" max="12" step="1" value="0" /></label>
+      <label
+        >Volume <input id="volume" type="range" min="0" max="1" step="0.05" value="0.5"
+      /></label>
+      <label><input id="hover" type="checkbox" /> Hover sounds</label>
+    </p>
+    <p><output id="readout"></output></p>
+    <script type="module" src="./kit.ts"></script>
+  </body>
+</html>
