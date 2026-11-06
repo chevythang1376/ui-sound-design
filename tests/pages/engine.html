@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Engine test page</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        background: #111317;
+        color: #e7e9ee;
+        padding: 2rem;
+      }
+      button {
+        font: inherit;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        border: 1px solid #ffb547;
+        background: #1f232a;
+        color: #e7e9ee;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 3px solid #ffb547;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Engine test page (M1)</h1>
+    <p>
+      One button, one recipe: the two-note "success" chime, played through
+      <code>createKit().play()</code>.
+    </p>
+    <button id="play" type="button">Play success</button>
+    <script type="module" src="./harness.ts"></script>
+  </body>
+</html>

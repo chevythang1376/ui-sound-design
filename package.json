@@ -1,0 +1,36 @@
+{
+  "name": "ui-sound-designer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Design UI sounds by ear with Web Audio and export a tiny zero-asset JS sound kit.",
+  "scripts": {
+    "runtime": "node scripts/build-runtime.mjs",
+    "predev": "npm run runtime",
+    "dev": "vite",
+    "prebuild": "npm run runtime",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "pretest": "npm run runtime",
+    "test": "vitest run",
+    "pretest:e2e": "npm run runtime",
+    "test:e2e": "playwright test",
+    "presize": "npm run runtime",
+    "size": "node scripts/check-size.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
+  }
+}
