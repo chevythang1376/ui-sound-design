@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { RETRIGGER_MS } from '../../src/engine/limiter';
 import { instrument, playedSounds, skipWithoutWebAudio } from './helpers';
 
 const open = async (page: Page) => {
@@ -11,10 +12,17 @@ test.beforeEach(async ({ page }) => {
   await instrument(page);
 });
 
+/**
+ * The engine drops a repeat of the same sound within RETRIGGER_MS (by design). A fast test
+ * runner can repeat an action quicker than any person, so leave a human-sized gap.
+ */
+const gap = (page: Page) => page.waitForTimeout(RETRIGGER_MS * 3);
+
 /** Run the whole stage flow and assert every visible state. Returns nothing; sounds are separate. */
 async function exerciseStage(page: Page) {
   const s = stage(page);
   await s.getByRole('button', { name: 'Save changes' }).click();
+  await gap(page);
   await s.getByRole('button', { name: 'Cancel' }).click();
 
   const toggle = s.getByRole('switch', { name: 'Email notifications' });
@@ -32,6 +40,7 @@ async function exerciseStage(page: Page) {
   await expect(s.getByText('Enter your email address.')).toBeVisible();
   await expect(email).toHaveAttribute('aria-invalid', 'true');
   await expect(email).toBeFocused();
+  await gap(page);
   await email.fill('ana@');
   await email.press('Enter');
   await expect(s.getByText('That email address looks incomplete.')).toBeVisible();

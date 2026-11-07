@@ -274,10 +274,11 @@ full Safari audio coverage, and check on a real iPhone before shipping.
 Web Audio, and has two jobs:
 
 - **Checks:** typecheck, lint, unit tests, size budget and build.
-- **Browser tests:** all Playwright projects, with a PulseAudio null sink as the audio
-  output. The job then runs `scripts/check-e2e-skips.mjs` on the JSON report, which **fails**
-  if any test was skipped for missing Web Audio, so WebKit audio coverage cannot quietly
-  disappear. On failure, the test artifacts are uploaded.
+- **Browser tests:** all Playwright projects, in Microsoft's Playwright container image
+  (browsers preinstalled, no audio device needed). The job then runs
+  `scripts/check-e2e-skips.mjs` on the JSON report, which **fails** if any test was skipped for
+  missing Web Audio, so WebKit audio coverage cannot quietly disappear. Failures appear as
+  annotations on the run. On failure, the test artifacts are uploaded.
 
 ---
 

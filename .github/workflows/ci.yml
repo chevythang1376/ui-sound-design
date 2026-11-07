@@ -40,10 +40,10 @@ jobs:
     # Playwright's official image: Chromium, WebKit and their system libraries preinstalled, so
     # there is no slow apt install of ~100 packages (it hung the first run). The tag must match
     # the @playwright/test version in package-lock.json.
+    # No audio device is needed: WebKit's realtime AudioContext reaches "running" in the
+    # container without one (a PulseAudio null sink was tried and is unnecessary).
     container:
       image: mcr.microsoft.com/playwright:v1.65.0-noble
-    env:
-      DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -51,31 +51,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # No sound card in CI. A PulseAudio null sink gives WebKit's GStreamer backend an output
-      # device, so realtime AudioContexts can reach "running" in the unlock tests. Best effort:
-      # if it fails, the tests still run and the unlock tests report the real outcome. Results
-      # are reported as annotations, which are public (job logs need a GitHub sign-in).
-      - name: Virtual audio output (PulseAudio null sink)
-        timeout-minutes: 5
-        continue-on-error: true
-        shell: bash
-        run: |
-          note() { echo "::$1 title=Virtual audio::$2"; }
-          tailof() { tail -c 600 "$1" | tr '\n' ' '; }
-          if ! { apt-get update -qq && apt-get install -y -qq --no-install-recommends pulseaudio pulseaudio-utils; } > /tmp/apt.log 2>&1; then
-            note error "apt install failed: $(tailof /tmp/apt.log)"; exit 1
-          fi
-          # The container runs as root: give PulseAudio a runtime dir and share it with later steps.
-          export XDG_RUNTIME_DIR=/tmp/xdg-runtime
-          mkdir -p -m 700 "$XDG_RUNTIME_DIR"
-          echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
-          if ! pulseaudio --daemonize=yes --exit-idle-time=-1 --log-target=file:/tmp/pulse.log; then
-            note error "pulseaudio did not start: $(tailof /tmp/pulse.log)"; exit 1
-          fi
-          if ! { pactl load-module module-null-sink sink_name=ci_null && pactl set-default-sink ci_null; } > /tmp/pactl.log 2>&1; then
-            note error "pactl failed: $(tailof /tmp/pactl.log) | pulse log: $(tailof /tmp/pulse.log)"; exit 1
-          fi
-          note notice "Null sink ready. $(pactl info | grep -E 'Server Name|Default Sink' | tr '\n' ' ')"
       - name: Browser tests
         timeout-minutes: 15
         # github reporter: failures become public annotations. JSON: read by the coverage check.
