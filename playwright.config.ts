@@ -9,7 +9,9 @@ export default defineConfig({
   timeout: 30_000,
   use: { baseURL: `http://localhost:${PORT}` },
   webServer: {
-    command: `npx vite --port ${PORT} --strictPort`,
+    // Build the engine runtime (generated/, gitignored) first, however the tests are launched:
+    // `npx playwright test` skips the npm pretest:e2e hook.
+    command: `node scripts/build-runtime.mjs && npx vite --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
     timeout: 60_000,
